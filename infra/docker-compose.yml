@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: edd_postgres
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - edd_pg:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: edd_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: demo
+      RABBITMQ_DEFAULT_PASS: demo
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  edd_pg:
