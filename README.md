@@ -10,6 +10,10 @@ This repository is a reference implementation demonstrating:
 - **Inbox idempotency** in consumer (`analytics.inbox`)
 - **Retries + DLQ** (MassTransit retry + RabbitMQ `*_error` queues)
 
+## Architecture
+
+For a detailed overview of the system architecture, including container-level diagrams and explanations of key patterns (Event Sourcing, CQRS, Outbox, Inbox, Retries/DLQ), see the [Architecture Documentation](docs/architecture.md).
+
 ## Prerequisites
 
 - .NET SDK 9
