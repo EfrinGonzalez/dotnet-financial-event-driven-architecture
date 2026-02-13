@@ -1,4 +1,4 @@
-using MassTransit.EntityFrameworkCoreIntegration;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Payments.Api.Infrastructure.EventStore;
 using Payments.Api.ReadModel;
@@ -14,11 +14,6 @@ public sealed class PaymentsDbContext : DbContext
 
     // Read model projection
     public DbSet<PaymentReadEntity> PaymentsRead => Set<PaymentReadEntity>();
-
-    // MassTransit EF Outbox entities
-    public DbSet<OutboxMessageEntity> OutboxMessages => Set<OutboxMessageEntity>();
-    public DbSet<OutboxStateEntity> OutboxStates => Set<OutboxStateEntity>();
-    public DbSet<InboxStateEntity> InboxStates => Set<InboxStateEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
