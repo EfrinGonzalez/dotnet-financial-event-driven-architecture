@@ -27,7 +27,7 @@ public sealed class InitiatePaymentHandler : IRequestHandler<InitiatePaymentComm
         _publish = publish;
     }
 
-    public async Task Handle(InitiatePaymentCommand request, CancellationToken ct)
+    public async Task<Unit> Handle(InitiatePaymentCommand request, CancellationToken ct)
     {
         // One transaction: append domain events + update read model + persist outbox message
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -64,5 +64,7 @@ public sealed class InitiatePaymentHandler : IRequestHandler<InitiatePaymentComm
 
         await tx.CommitAsync(ct);
         agg.ClearUncommitted();
+        
+        return Unit.Value;
     }
 }

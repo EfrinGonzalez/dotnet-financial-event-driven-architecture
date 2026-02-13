@@ -16,7 +16,7 @@ builder.Services.AddDbContext<PaymentsDbContext>(o =>
 builder.Services.AddScoped<IPaymentEventStore, PaymentEventStore>();
 builder.Services.AddScoped<PaymentProjector>();
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<InitiatePaymentHandler>());
+builder.Services.AddMediatR(typeof(InitiatePaymentHandler).Assembly);
 
 // MassTransit + RabbitMQ + Transactional Outbox (EF Core)
 builder.Services.AddMassTransit(x =>
