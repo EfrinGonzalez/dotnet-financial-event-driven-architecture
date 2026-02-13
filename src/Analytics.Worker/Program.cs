@@ -2,6 +2,7 @@ using Analytics.Worker.Consumers;
 using Analytics.Worker.Inbox;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
