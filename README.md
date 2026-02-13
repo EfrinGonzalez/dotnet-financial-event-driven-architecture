@@ -116,3 +116,13 @@ Confirm `UseBusOutbox()` is enabled in `Payments.Api/Program.cs` and that Rabbit
 Make sure to run migrations with the correct project (`-p`), startup (`-s`), and context (`-c`).
 
 ---
+DB Troubleshooting in Docker
+
+Trobleshoot in case docker container is not in the same network.
+Insted of using localhost for the host, use the followin:
+Use this setup going forward:
+
+- **Host name/address:** host.docker.internal
+- **Port:** 5432 (or whatever host port you publish)
+- **Maintenance database:** demo (or postgres)
+- **Username/Password:** demo / demo
