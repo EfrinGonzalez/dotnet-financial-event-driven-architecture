@@ -23,9 +23,19 @@ builder.Services.AddOptions<RabbitMqOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+// Get and validate RabbitMQ options early for MassTransit configuration
 var rabbitMqOptions = builder.Configuration
     .GetSection(RabbitMqOptions.SectionName)
     .Get<RabbitMqOptions>() ?? new RabbitMqOptions();
+
+// Manually validate to ensure early detection of configuration issues
+var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(rabbitMqOptions);
+if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(rabbitMqOptions, validationContext, validationResults, true))
+{
+    var errors = string.Join(", ", validationResults.Select(r => r.ErrorMessage));
+    throw new InvalidOperationException($"RabbitMQ configuration validation failed: {errors}");
+}
 
 builder.Services.AddMediatR(typeof(InitiatePaymentHandler).Assembly);
 
