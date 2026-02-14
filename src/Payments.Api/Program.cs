@@ -38,15 +38,10 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
+        cfg.Host(rabbitMqOptions.Host, (ushort)rabbitMqOptions.Port, rabbitMqOptions.VirtualHost, h =>
         {
             h.Username(rabbitMqOptions.Username);
             h.Password(rabbitMqOptions.Password);
-
-            if (rabbitMqOptions.Port != 5672)
-            {
-                h.UseCluster(c => c.Node($"{rabbitMqOptions.Host}:{rabbitMqOptions.Port}"));
-            }
         });
 
         cfg.ConfigureEndpoints(context);
