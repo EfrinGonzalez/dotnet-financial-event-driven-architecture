@@ -17,7 +17,12 @@ builder.Services.AddDbContext<PaymentsDbContext>(o =>
 builder.Services.AddScoped<IPaymentEventStore, PaymentEventStore>();
 builder.Services.AddScoped<PaymentProjector>();
 
-// Bind RabbitMQ configuration
+// Bind and validate RabbitMQ configuration
+builder.Services.AddOptions<RabbitMqOptions>()
+    .Bind(builder.Configuration.GetSection(RabbitMqOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 var rabbitMqOptions = builder.Configuration
     .GetSection(RabbitMqOptions.SectionName)
     .Get<RabbitMqOptions>() ?? new RabbitMqOptions();

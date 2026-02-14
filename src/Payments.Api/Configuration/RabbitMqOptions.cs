@@ -1,27 +1,23 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Payments.Api.Configuration;
 
 public class RabbitMqOptions
 {
     public const string SectionName = "RabbitMq";
 
+    [Required]
     public string Host { get; set; } = "localhost";
     
-    private int _port = 5672;
-    public int Port
-    {
-        get => _port;
-        set
-        {
-            if (value < 1 || value > 65535)
-            {
-                throw new ArgumentOutOfRangeException(nameof(Port), value, 
-                    "Port must be between 1 and 65535");
-            }
-            _port = value;
-        }
-    }
+    [Range(1, 65535)]
+    public int Port { get; set; } = 5672;
     
+    [Required]
     public string VirtualHost { get; set; } = "/";
+    
+    [Required]
     public string Username { get; set; } = string.Empty;
+    
+    [Required]
     public string Password { get; set; } = string.Empty;
 }

@@ -14,7 +14,12 @@ builder.Services.AddDbContext<InboxDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
 });
 
-// Bind RabbitMQ configuration
+// Bind and validate RabbitMQ configuration
+builder.Services.AddOptions<RabbitMqOptions>()
+    .Bind(builder.Configuration.GetSection(RabbitMqOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 var rabbitMqOptions = builder.Configuration
     .GetSection(RabbitMqOptions.SectionName)
     .Get<RabbitMqOptions>() ?? new RabbitMqOptions();
