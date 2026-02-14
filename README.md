@@ -14,6 +14,8 @@ This repository is a reference implementation demonstrating:
 
 For a detailed overview of the system architecture, including container-level diagrams and explanations of key patterns (Event Sourcing, CQRS, Outbox, Inbox, Retries/DLQ), see the [Architecture Documentation](docs/architecture.md).
 
+For a detailed, step-by-step explanation of the end-to-end message flow through the transactional outbox + RabbitMQ + inbox/idempotency pipeline, including startup sequences, request handling, outbox dispatch, consumer processing, expected artifacts at each stage, and comprehensive troubleshooting guidance, see the [Message Flow Documentation](docs/message-flow.md).
+
 ## Prerequisites
 
 - .NET SDK 9
