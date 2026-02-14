@@ -56,11 +56,10 @@ var app = builder.Build();
 // Log RabbitMQ connection details for diagnostics
 var logger = app.Logger;
 logger.LogInformation(
-    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}, Username={Username}",
+    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}",
     rabbitMqOptions.Host,
     rabbitMqOptions.Port,
-    rabbitMqOptions.VirtualHost,
-    rabbitMqOptions.Username);
+    rabbitMqOptions.VirtualHost);
 
 app.UseSwagger();
 app.UseSwaggerUI();

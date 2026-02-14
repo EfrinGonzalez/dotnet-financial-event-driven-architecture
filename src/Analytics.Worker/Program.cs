@@ -50,11 +50,10 @@ var host = builder.Build();
 // Log RabbitMQ connection details for diagnostics
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation(
-    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}, Username={Username}",
+    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}",
     rabbitMqOptions.Host,
     rabbitMqOptions.Port,
-    rabbitMqOptions.VirtualHost,
-    rabbitMqOptions.Username);
+    rabbitMqOptions.VirtualHost);
 logger.LogInformation("Analytics Worker starting, listening on endpoint: analytics-payment-initiated");
 
 host.Run();
