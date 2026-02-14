@@ -2,6 +2,7 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Payments.Api.Application;
+using Payments.Api.Configuration;
 using Payments.Api.Infrastructure;
 using Payments.Api.Infrastructure.EventStore;
 using Payments.Api.ReadModel;
@@ -15,6 +16,11 @@ builder.Services.AddDbContext<PaymentsDbContext>(o =>
 
 builder.Services.AddScoped<IPaymentEventStore, PaymentEventStore>();
 builder.Services.AddScoped<PaymentProjector>();
+
+// Bind RabbitMQ configuration
+var rabbitMqOptions = builder.Configuration
+    .GetSection(RabbitMqOptions.SectionName)
+    .Get<RabbitMqOptions>() ?? new RabbitMqOptions();
 
 builder.Services.AddMediatR(typeof(InitiatePaymentHandler).Assembly);
 
@@ -32,14 +38,15 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        var host = builder.Configuration["RabbitMq:Host"]!;
-        var user = builder.Configuration["RabbitMq:Username"]!;
-        var pass = builder.Configuration["RabbitMq:Password"]!;
-
-        cfg.Host(host, "/", h =>
+        cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
         {
-            h.Username(user);
-            h.Password(pass);
+            h.Username(rabbitMqOptions.Username);
+            h.Password(rabbitMqOptions.Password);
+
+            if (rabbitMqOptions.Port != 5672)
+            {
+                h.UseCluster(c => c.Node($"{rabbitMqOptions.Host}:{rabbitMqOptions.Port}"));
+            }
         });
 
         cfg.ConfigureEndpoints(context);
@@ -50,6 +57,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Log RabbitMQ connection details for diagnostics
+var logger = app.Logger;
+logger.LogInformation(
+    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}, Username={Username}",
+    rabbitMqOptions.Host,
+    rabbitMqOptions.Port,
+    rabbitMqOptions.VirtualHost,
+    rabbitMqOptions.Username);
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
