@@ -2,6 +2,7 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Payments.Api.Application;
+using Payments.Api.Configuration;
 using Payments.Api.Infrastructure;
 using Payments.Api.Infrastructure.EventStore;
 using Payments.Api.ReadModel;
@@ -15,6 +16,26 @@ builder.Services.AddDbContext<PaymentsDbContext>(o =>
 
 builder.Services.AddScoped<IPaymentEventStore, PaymentEventStore>();
 builder.Services.AddScoped<PaymentProjector>();
+
+// Bind and validate RabbitMQ configuration
+builder.Services.AddOptions<RabbitMqOptions>()
+    .Bind(builder.Configuration.GetSection(RabbitMqOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+// Get and validate RabbitMQ options early for MassTransit configuration
+var rabbitMqOptions = builder.Configuration
+    .GetSection(RabbitMqOptions.SectionName)
+    .Get<RabbitMqOptions>() ?? new RabbitMqOptions();
+
+// Manually validate to ensure early detection of configuration issues
+var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(rabbitMqOptions);
+if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(rabbitMqOptions, validationContext, validationResults, true))
+{
+    var errors = string.Join(", ", validationResults.Select(r => r.ErrorMessage));
+    throw new InvalidOperationException($"RabbitMQ configuration validation failed: {errors}");
+}
 
 builder.Services.AddMediatR(typeof(InitiatePaymentHandler).Assembly);
 
@@ -32,14 +53,10 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        var host = builder.Configuration["RabbitMq:Host"]!;
-        var user = builder.Configuration["RabbitMq:Username"]!;
-        var pass = builder.Configuration["RabbitMq:Password"]!;
-
-        cfg.Host(host, "/", h =>
+        cfg.Host(rabbitMqOptions.Host, checked((ushort)rabbitMqOptions.Port), rabbitMqOptions.VirtualHost, h =>
         {
-            h.Username(user);
-            h.Password(pass);
+            h.Username(rabbitMqOptions.Username);
+            h.Password(rabbitMqOptions.Password);
         });
 
         cfg.ConfigureEndpoints(context);
@@ -50,6 +67,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Log RabbitMQ connection details for diagnostics
+var logger = app.Logger;
+logger.LogInformation(
+    "RabbitMQ Configuration: Host={Host}, Port={Port}, VirtualHost={VirtualHost}",
+    rabbitMqOptions.Host,
+    rabbitMqOptions.Port,
+    rabbitMqOptions.VirtualHost);
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
